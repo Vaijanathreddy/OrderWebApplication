@@ -28,10 +28,9 @@ namespace OrderApplication.Controllers
                 Discount = discount,
                 FinalTotal = finalTotal
             };
-
             return Json(result);
         }
-
+        
         // this method check customer is new or loyal based on that discount will be added
         public decimal CalculateDiscount(decimal Amount, string CustomerType)
         {
@@ -48,13 +47,10 @@ namespace OrderApplication.Controllers
                 {
                     order.Discount = 0;
                 }
-
                 order.FinalTotal = order.Amount - order.Discount;
-
                 return order.Discount;
             }
             return 0;
         }
-
     }
 }
