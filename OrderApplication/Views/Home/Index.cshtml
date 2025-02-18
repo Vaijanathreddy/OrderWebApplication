@@ -1,1 +1,133 @@
-﻿
+﻿@model OrderApplication.Models.OrderProcess
+
+@{
+    ViewData["Title"] = "Order Entry";
+}
+<header>
+    <style>
+        /* General styles for the form container */
+        .form {
+            width: 600px;
+            margin: 0 auto; /* Center the form horizontally */
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+        }
+
+            /* Style for each form section */
+            .form div {
+                margin-bottom: 15px;
+            }
+
+            /* Label styles */
+            .form label {
+                display: block;
+                font-size: 14px;
+                margin-bottom: 8px;
+                font-weight: bold;
+            }
+
+            /* Input field styles */
+            .form input[type="number"],
+            .form select {
+                width: 100%;
+                padding: 8px;
+                font-size: 14px;
+                border: 1px solid #ccc;
+                border-radius: 4px;
+            }
+
+            /* Button styles */
+            .form button {
+                width: 100%;
+                padding: 10px;
+                font-size: 16px;
+                background-color: #4CAF50;
+                color: white;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+            }
+
+                .form button:hover {
+                    background-color: #45a049;
+                }
+
+        /* Table styling for the results */
+        table {
+            width: 100%;
+            margin-top: 20px;
+            border-collapse: collapse;
+        }
+
+            table th, table td {
+                padding: 10px;
+                text-align: left;
+                border: 1px solid #ddd;
+            }
+
+            table th {
+                background-color: #f2f2f2;
+                font-weight: bold;
+            }
+
+        /* Link to go back to the order entry page */
+        .form a {
+            display: inline-block;
+            margin-top: 15px;
+            text-decoration: none;
+            color: #4CAF50;
+            font-weight: bold;
+        }
+
+            .form a:hover {
+                color: #45a049;
+            }
+    </style>
+</header>
+
+<form asp-action="Process" method="post" class="form">
+    <div>
+        <label asp-for="Amount">Order Amount ($):</label>
+        @Html.EditorFor(model => model.Amount, new { htmlAttributes = new { @class = "form-control", @step = "0.01", @placeholder = "Enter Amount" } })
+    </div>
+    <div>
+        <label asp-for="CustomerType">Customer Type:</label>
+        @Html.DropDownListFor(model => model.CustomerType, new List<SelectListItem>
+        {
+            new SelectListItem { Text = "New", Value = "New" },
+            new SelectListItem { Text = "Loyal", Value = "Loyal" }
+        }, new { @class = "form-control" })
+    </div>
+    <div>
+        <button type="submit" id="Submit">Submit Order</button>
+    </div>
+
+    <div>
+        <h2>Order Result</h2>
+
+        <table>
+            <tr>
+                <th>Customer Type</th>
+                <td id="MCT"></td>
+            </tr>
+            <tr>
+                <th>Order Amount</th>
+                <td id="MAmount"></td>
+            </tr>
+            <tr>
+                <th>Discount Applied</th>
+                <td id="MDiscount"></td>
+            </tr>
+            <tr>
+                <th>Final Total</th>
+                <td id="MFAmount"></td>
+            </tr>
+        </table>
+    </div>
+</form>
+<!-- jQuery Script -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+
