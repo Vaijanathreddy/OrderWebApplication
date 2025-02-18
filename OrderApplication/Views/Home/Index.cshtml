@@ -1,33 +1,178 @@
-﻿@{
-    ViewBag.Title = "Home Page";
+﻿@model OrderApplication.Models.OrderProcess
+
+@{
+    ViewData["Title"] = "Order Entry";
 }
+<header>
+    <style>
+        /* General styles for the form container */
+        .form {
+            width: 600px;
+            margin: 0 auto; /* Center the form horizontally */
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+        }
 
-<main>
-    <section class="row" aria-labelledby="aspnetTitle">
-        <h1 id="title">ASP.NET</h1>
-        <p class="lead">ASP.NET is a free web framework for building great Web sites and Web applications using HTML, CSS and JavaScript.</p>
-        <p><a href="https://asp.net" class="btn btn-primary btn-md">Learn more &raquo;</a></p>
-    </section>
+            /* Style for each form section */
+            .form div {
+                margin-bottom: 15px;
+            }
 
-    <div class="row">
-        <section class="col-md-4" aria-labelledby="gettingStartedTitle">
-            <h2 id="gettingStartedTitle">Getting started</h2>
-            <p>
-                ASP.NET MVC gives you a powerful, patterns-based way to build dynamic websites that
-                enables a clean separation of concerns and gives you full control over markup
-                for enjoyable, agile development.
-            </p>
-            <p><a class="btn btn-outline-dark" href="https://go.microsoft.com/fwlink/?LinkId=301865">Learn more &raquo;</a></p>
-        </section>
-        <section class="col-md-4" aria-labelledby="librariesTitle">
-            <h2 id="librariesTitle">Get more libraries</h2>
-            <p>NuGet is a free Visual Studio extension that makes it easy to add, remove, and update libraries and tools in Visual Studio projects.</p>
-            <p><a class="btn btn-outline-dark" href="https://go.microsoft.com/fwlink/?LinkId=301866">Learn more &raquo;</a></p>
-        </section>
-        <section class="col-md-4" aria-labelledby="hostingTitle">
-            <h2 id="hostingTitle">Web Hosting</h2>
-            <p>You can easily find a web hosting company that offers the right mix of features and price for your applications.</p>
-            <p><a class="btn btn-outline-dark" href="https://go.microsoft.com/fwlink/?LinkId=301867">Learn more &raquo;</a></p>
-        </section>
+            /* Label styles */
+            .form label {
+                display: block;
+                font-size: 14px;
+                margin-bottom: 8px;
+                font-weight: bold;
+            }
+
+            /* Input field styles */
+            .form input[type="number"],
+            .form select {
+                width: 100%;
+                padding: 8px;
+                font-size: 14px;
+                border: 1px solid #ccc;
+                border-radius: 4px;
+            }
+
+            /* Button styles */
+            .form button {
+                width: 100%;
+                padding: 10px;
+                font-size: 16px;
+                background-color: #4CAF50;
+                color: white;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+            }
+
+                .form button:hover {
+                    background-color: #45a049;
+                }
+
+        /* Table styling for the results */
+        table {
+            width: 100%;
+            margin-top: 20px;
+            border-collapse: collapse;
+        }
+
+            table th, table td {
+                padding: 10px;
+                text-align: left;
+                border: 1px solid #ddd;
+            }
+
+            table th {
+                background-color: #f2f2f2;
+                font-weight: bold;
+            }
+
+        /* Link to go back to the order entry page */
+        .form a {
+            display: inline-block;
+            margin-top: 15px;
+            text-decoration: none;
+            color: #4CAF50;
+            font-weight: bold;
+        }
+
+            .form a:hover {
+                color: #45a049;
+            }
+    </style>
+</header>
+
+<form asp-action="Process" method="post" class="form">
+    <div>
+        <label asp-for="Amount">Order Amount ($):</label>
+        @Html.EditorFor(model => model.Amount, new { htmlAttributes = new { @class = "form-control", @step = "0.01", @placeholder = "Enter Amount" } })
     </div>
-</main>
+    <div>
+        <label asp-for="CustomerType">Customer Type:</label>
+        @Html.DropDownListFor(model => model.CustomerType, new List<SelectListItem>
+        {
+            new SelectListItem { Text = "New", Value = "New" },
+            new SelectListItem { Text = "Loyal", Value = "Loyal" }
+        }, new { @class = "form-control" })
+    </div>
+    <div>
+        <button type="submit" id="Submit">Submit Order</button>
+    </div>
+
+    <div>
+        <h2>Order Result</h2>
+
+        <table>
+            <tr>
+                <th>Customer Type</th>
+                <td id="MCT"></td>
+            </tr>
+            <tr>
+                <th>Order Amount</th>
+                <td id="MAmount"></td>
+            </tr>
+            <tr>
+                <th>Discount Applied</th>
+                <td id="MDiscount"></td>
+            </tr>
+            <tr>
+                <th>Final Total</th>
+                <td id="MFAmount"></td>
+            </tr>
+        </table>
+    </div>
+</form>
+<!-- jQuery Script -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+
+<script>
+    $(document).ready(function () {
+        // Attach the AJAX form submit event
+        $('#Submit').click(function (e) {
+            e.preventDefault();  // Prevent the default form submission
+
+            var Amount = $('#Amount').val();
+            var CustomerType = $('#CustomerType').val();
+
+            // Validation
+            if (Amount == 0 || CustomerType == '') {
+                alert('Please fill in all required fields.');
+                return false;  // Prevent form submission
+            }
+
+            $.ajax({
+                url: 'Home/GetOrderData', // URL for the controller action
+                type: 'POST',
+                data: {
+                    Amount: Amount,
+                    CustomerType: CustomerType
+                },
+                success: function (response) {
+                    if (response != null) {
+                        console.log(response); // Check the response in the console
+
+                        $('#MCT').text(response.CustomerType);
+                        $('#MAmount').text('$' + response.Amount);
+                        $('#MDiscount').text('$' + response.Discount);
+                        $('#MFAmount').text('$' + response.FinalTotal);
+                    } else {
+                        alert('An error occurred. No data returned.');
+                    }
+
+                }
+
+
+            });
+            $('#Amount').val(0);
+            $('#CustomerType').val('');
+        });
+    });
+
+
+</script>
