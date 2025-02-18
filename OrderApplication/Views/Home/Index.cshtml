@@ -131,3 +131,48 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
 
+<script>
+    $(document).ready(function () {
+        // Attach the AJAX form submit event
+        $('#Submit').click(function (e) {
+            e.preventDefault();  // Prevent the default form submission
+
+            var Amount = $('#Amount').val();
+            var CustomerType = $('#CustomerType').val();
+
+            // Validation
+            if (Amount == 0 || CustomerType == '') {
+                alert('Please fill in all required fields.');
+                return false;  // Prevent form submission
+            }
+
+            $.ajax({
+                url: 'Home/GetOrderData', // URL for the controller action
+                type: 'POST',
+                data: {
+                    Amount: Amount,
+                    CustomerType: CustomerType
+                },
+                success: function (response) {
+                    if (response != null) {
+                        console.log(response); // Check the response in the console
+
+                        $('#MCT').text(response.CustomerType);
+                        $('#MAmount').text('$' + response.Amount);
+                        $('#MDiscount').text('$' + response.Discount);
+                        $('#MFAmount').text('$' + response.FinalTotal);
+                    } else {
+                        alert('An error occurred. No data returned.');
+                    }
+
+                }
+
+
+            });
+            $('#Amount').val(0);
+            $('#CustomerType').val('');
+        });
+    });
+
+
+</script>
